@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: node-web-app
-          image: harbor.lcc3108.ga/node-web-project/web-node-app:latest
+          image: harbor.lcc3108.ga/library/web-node-app:latest
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
