@@ -4,9 +4,6 @@ metadata:
   name: node-web-app-pipeline
   namespace: node-web-project
 spec:
-  params:
-  - name: image
-    type: string
   resources:
     - name: node-web-app-source
       type: git
@@ -15,14 +12,8 @@ spec:
   tasks:
     - name: build-and-publish-image
       params:
-        - name : IMAGE
-          value: 'node-web-app:$(params.image)'
-        - name: BUILDER_IMAGE
-          value: 'quay.io/buildah/stable:v1.11.0'
-        - name: DOCKERFILE
-          value: ./Dockerfile
-        - name: TLSVERIFY
-          value: 'false'
+        - name : imageUrl
+          value: harbor.lcc3108.ga/library/web-node-app
       resources:
         inputs:
           - name: source
@@ -31,6 +22,6 @@ spec:
           - name: image
             resource: node-web-app-image
       taskRef:
-        kind: ClusterTask
-        name: buildah
+        kind: Task
+        name: source-to-image
     
