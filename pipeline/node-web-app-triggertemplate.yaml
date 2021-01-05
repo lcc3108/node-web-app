@@ -39,6 +39,9 @@ spec:
       generateName: node-web-app-pipeline-run-
       namespace: node-web-project
     spec:
+      params:
+      - name: image
+        value: 'node-web-app:$(params.git-revision)' 
       pipelineRef:
         name: node-web-app-pipeline
       resources:
