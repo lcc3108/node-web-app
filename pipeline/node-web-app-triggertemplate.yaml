@@ -53,7 +53,7 @@ spec:
 
 --- 
 
-apiVersion: tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
   name: node-web-app-tb
@@ -68,7 +68,7 @@ spec:
 
 ---
 
-apiVersion: tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: node-web-app-el
