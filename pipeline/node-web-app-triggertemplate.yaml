@@ -76,8 +76,8 @@ spec:
   serviceAccountName: pipeline
   triggers:
   - bindings:
-    - name: node-web-app-tb
+    - ref: node-web-app-tb
     template:
-      name: node-web-app-tt
+      ref: node-web-app-tt
 
 ---
