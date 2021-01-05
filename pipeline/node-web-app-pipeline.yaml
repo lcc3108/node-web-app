@@ -12,6 +12,8 @@ spec:
   tasks:
     - name: build-and-publish-image
       params:
+        - name : IMAGE
+          value: "node-web-app:$(params.git-revision)"
         - name: BUILDER_IMAGE
           value: 'quay.io/buildah/stable:v1.11.0'
         - name: DOCKERFILE
