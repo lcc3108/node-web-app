@@ -1,4 +1,4 @@
-apiVersion: tekton.dev/v1alpha1
+apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: node-web-app-tt
@@ -81,15 +81,3 @@ spec:
       name: node-web-app-tt
 
 ---
-
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: el-node-web-app
-  namespace: node-web-project
-spec:
-  host: el-node-web-app.apps.roly-ocp43-cluster.roly-ocp.com
-  to:
-    kind: Service
-    name: el-node-web-app-el
-    weight: 100

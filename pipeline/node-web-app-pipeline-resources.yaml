@@ -6,7 +6,7 @@ metadata:
 spec:
   params:
     - name: url
-      value: 'https://github.com/ibm-cloud-architecture/node-web-app.git'
+      value: "https://github.com/lcc3108/node-web-app.git"
     - name: revision
       value: master
   type: git
@@ -19,5 +19,5 @@ metadata:
 spec:
   params:
     - name: url
-      value: 'image-registry.openshift-image-registry.svc:5000/node-web-project/web-node-app:latest'
+      value: "harbor.lcc3108.ga/library/web-node-app:latest"
   type: image
