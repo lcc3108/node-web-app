@@ -28,7 +28,7 @@ spec:
         - name: flags
           value: '--insecure --grpc-web'
         - name: argocd-version
-          value: v1.8.1
+          value: v1.7.7
       runAfter:
         - build-and-publish-image
       taskRef:
