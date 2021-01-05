@@ -11,9 +11,6 @@ spec:
       type: image
   tasks:
     - name: build-and-publish-image
-      params:
-        - name : imageUrl
-          value: harbor.lcc3108.ga/library/web-node-app
       resources:
         inputs:
           - name: source
