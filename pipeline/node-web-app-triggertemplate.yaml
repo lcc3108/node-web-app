@@ -31,7 +31,7 @@ spec:
     spec:
       params:
       - name: url
-        value: 'harbor.lcc3108.ga/node-web-project/web-node-app:latest'
+        value: 'harbor.lcc3108.ga/library/web-node-app:latest'
       type: image
   - apiVersion: tekton.dev/v1alpha1
     kind: PipelineRun
