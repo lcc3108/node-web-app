@@ -5,6 +5,6 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: {{ .Values.nodeWebApp.port }}
+      targetPort: {{ .Values.app.port }}
   selector:
     app: node-web-app

@@ -6,19 +6,19 @@ spec:
   selector:
     matchLabels:
       app: node-web-app
-  replicas: { { .Values.nodeWebApp.replicas } }
+  replicas: {{ .Values.app.replicas }}
   template:
     metadata:
       labels:
         app: node-web-app
-        version: { { .Values.nodeWebApp.version } }
+        version: {{ .Values.app.version }}
     spec:
       containers:
         - name: node-web-app
-          image: harbor.lcc3108.ga/library/web-node-app:{{ .Values.nodeWebApp.version }}
+          image: harbor.lcc3108.ga/library/web-node-app:{{ .Values.app.version }}
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: node-web-app-config
           ports:
-            - containerPort: { { .Values.nodeWebApp.port } }
+            - containerPort: {{ .Values.app.port }}

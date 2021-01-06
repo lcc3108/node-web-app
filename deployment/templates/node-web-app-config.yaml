@@ -3,6 +3,6 @@ kind: ConfigMap
 metadata:
   name: node-web-app-config
 data:
-  VERSION: { { .Values.nodeWebApp.version } }
-  HOST: { { .Values.nodeWebApp.host } }
-  PORT: { { .Values.nodeWebApp.port } }
+  VERSION: {{ .Values.app.version }}
+  HOST: {{ .Values.app.host }}
+  PORT: {{ .Values.app.port }}
