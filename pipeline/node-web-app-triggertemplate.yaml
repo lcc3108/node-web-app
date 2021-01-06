@@ -17,11 +17,11 @@ spec:
     spec:
       params:
       - name: url
-        value: $(params.git-repo-url)
+        value: $(tt.params.git-repo-url)
       - name: revision
-        value: $(params.git-revision)
+        value: $(tt.params.git-revision)
       - name: git-repo-name
-        value: $(params.git-repo-name)
+        value: $(tt.params.git-repo-name)
       type: git
   - apiVersion: tekton.dev/v1alpha1
     kind: PipelineResource
