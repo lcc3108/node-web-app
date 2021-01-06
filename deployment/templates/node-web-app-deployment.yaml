@@ -2,24 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: node-web-app-deployment
-  namespace: node-web-project
 spec:
   selector:
     matchLabels:
       app: node-web-app
-  replicas: {{ .Values.node-web-app.replicas }}
+  replicas: { { .Values.nodeWebApp.replicas } }
   template:
     metadata:
       labels:
         app: node-web-app
-        version: {{ .Values.node-web-app.version }}
+        version: { { .Values.nodeWebApp.version } }
     spec:
       containers:
         - name: node-web-app
-          image: harbor.lcc3108.ga/library/web-node-app:{{ .Values.node-web-app.version }}
+          image: harbor.lcc3108.ga/library/web-node-app:{{ .Values.nodeWebApp.version }}
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
                 name: node-web-app-config
           ports:
-            - containerPort: {{ .Values.node-web-app.port }}
+            - containerPort: { { .Values.nodeWebApp.port } }
