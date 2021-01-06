@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: node-web-app-pipeline-run
+  labels:
+    app.kubernetes.io/instance: node-web-pipeline
+    tekton.dev/pipeline: node-web-app-pipeline
+spec:
+  serviceAccountName: pipeline
+  pipelineRef:
+    name: node-web-app-pipeline
+  resources:
+    - name: node-web-app-source
+      resourceRef:
+        name: node-web-app-source
+    - name: node-web-app-image
+      resourceRef:
+        name: node-web-app-image
+  timeout: 1h0m0s
