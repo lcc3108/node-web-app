@@ -12,7 +12,7 @@ spec:
   - apiVersion: tekton.dev/v1alpha1
     kind: PipelineResource
     metadata:
-      name: node-web-app-source-$(uid)
+      name: node-web-app-source-$(tt.params.git-revision)
       namespace: node-web-project
     spec:
       params:
@@ -26,12 +26,12 @@ spec:
   - apiVersion: tekton.dev/v1alpha1
     kind: PipelineResource
     metadata:
-      name: node-web-app-image-$(uid)
+      name: node-web-app-image-$(tt.params.git-revision)
       namespace: node-web-project
     spec:
       params:
       - name: url
-        value: 'harbor.lcc3108.ga/library/web-node-app:latest'
+        value: 'harbor.lcc3108.ga/library/web-node-app:$(tt.params.git-revision)'
       type: image
   - apiVersion: tekton.dev/v1alpha1
     kind: PipelineRun
