@@ -16,4 +16,4 @@ spec:
     - name: node-web-app-image
       resourceRef:
         name: node-web-app-image
-  timeout: 1h0m0s
+  timeout: 0h10m0s
