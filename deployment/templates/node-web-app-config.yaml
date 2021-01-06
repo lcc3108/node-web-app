@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-web-app-config
+  namespace: node-web-project
+data:
+  VERSION: {{ .Values.node-web-app.version }}
+  HOST: {{ .Values.node-web-app.host }}
+  PORT: {{ .Values.node-web-app.port }}
