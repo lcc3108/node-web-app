@@ -1,36 +1,42 @@
 # GitOps with Tekton and ArgoCD
-## Simple Node JS App Soup to Nuts: From DeskTop Docker to OpenShift Cluster
+## Simple Node JS App Soup to Nuts: From DeskTop Docker to Kubernetes
 
-This git repo is a simple contains a simple node applicaiton that uses argocd to deploy its tekton pipeline to OpenSHift 4.3.  It the uses Tekton to build an image, publish it to the Container Registry and executes an argo sync to deploy the app.  
+이 레포는 [ibm-cloud-architecture/node-web-app](https://github.com/ibm-cloud-architecture/node-web-app) 레포지토리의 내용을 쿠버네티스에서 따라하기 쉽게 변경하였습니다.
+
+간단한 Node JS 웹앱이 있으며 argocd와 tekton을 사용한 gitops를 따라해 볼 수 있습니다.
+
+전체적인 workflow는 아래와 같습니다.
 
 ![alt argo-flow-1](images/TektonArgoOpenShift.png)
 
-### Create a Fork of this Repo for your own fun.
+### 이 레포를 포크하여 사용하는 방법(필수아님) 
 
 
-1. Since you are running a GitOps Example, you want to create a fork of this repo into your own git-repo
+1. gitops 예시를 자신의 레포지토리에서 진행하고 싶을때 포크를 할 수 있습니다.
 
     ![alt fork-repo](images/fork-repo.png)
 
-2. Select your user 
+2. 자신의 유저아이디를 선택합니다.
 
     ![alt fork-repo-2](images/fork-repo-2.png)
 
-3. You want to create a Clone of your new repo
+3. 포크한 레포를 클론합니다.
 ```console
  git clone https://github.com/<your-user>/node_web_app.git
 
  cd node_web_app
 ```
 
-### Run Node App and Test Locally with Docker or Podman 
+### 로컬에서 Node APP을 도커를 사용하여 테스트해보기 
 
-The Node Applicaiton is created following this tutorial simulating how a new user might learn to containerize a Node App.  
+Node APP은 아래의 Node JS APP을 도커라이제이션하는 튜토리얼을 완료하면 나오는 결과물입니다.
 [Dockerizing a Node.js web app](https://nodejs.org/fr/docs/guides/nodejs-docker-webapp/)
 
-1. To run the applicaiton locally, [Install Docker Desktop](https://www.docker.com/products/docker-desktop) or you could use [podman](https://podman.io/) on Linux (This assumes you use podman CLI instead of docker.  Substitute docker <command> with podman <command>)
+1. 노드앱을 로컬에서 실행시키기 위해선 도커가 필요합니다.
+윈도우의 경우 도커데스크톱 [Install Docker Desktop](https://www.docker.com/products/docker-desktop) 
+리눅스의 경우 그냥 도커를 설치하시면 됩니다. [Install Docker](https://docs.docker.com/get-docker/)
 
-2. You can run the app locally if you have [node](https://nodejs.org/en/) installed
+2. 로컬에 Node JS가 설치되어 있을경우 실행시킬 수 있습니다.(필수 아님)
 
 ```
 npm install 
@@ -40,101 +46,75 @@ node server.js
 
 
 
-3. Since you have the code, docker build
-
+3. 배포를 위한 도커이미지 생성(Dockerfile 명령 실행)
 
 
 ```
 docker build -t <your username>/node-web-app .
 ```
-If you want to use podman locally, follow directions [here](https://developers.redhat.com/blog/2019/09/13/develop-with-node-js-in-a-container-on-red-hat-enterprise-linux/) to build with buildah.
 
-
-4. Run the applicaiton in a container.
+4. 도커 이미지 컨테이너로 실행
 ```
 docker run -p 49160:8080 -d <your username>/node-web-app
 
 ```
 
-5. Check that the container is running.
+5. 도커 컨테이너가 실행중인지 확인
 ```
 docker ps
 ```
 
-6. Test the Application 
+6. 어플리케이션 테스트
 
 ```
 curl -i localhost:49160
 
 ```
-### Change Pipeline Resource to your git repo.
+### Pipeline Resource 파일의 내용 변경
 
-This change is required to run a build from the console without a Trigger Event.  
+트리거 이벤트 없이 콘솔에서 빌드하기 위해 필요
 
 ![alt fork-repo](images/pipeline-resource-fork.png)
 
-### Using OpenShift 4.3 as my Kubernetes Cluster 
+### argocd 설치
+argocd는 gitops의 구현체로써 git이나 helm 레포의 내용을 읽어 쿠버네티스 클러스터와 동기화 시켜준다.
 
-You need your own 4.3 OpenShift Cluster.  Here are some options.  
+operator에 대해 알고 있다면 밑에 방법을 추천하며 만약 모른다면 위에 직접설치를 사용하여 설치한다.
 
-I [installed OpenShift 4.3 into AWS following these instructions](https://docs.openshift.com/container-platform/4.3/installing/installing_aws/installing-aws-account.html).
-
-You could use [Code Ready Containers](https://cloud.redhat.com/openshift/install/crc/installer-provisioned?intcmp=7013a000002CtetAAC) Locally.  
-
-This tutorial can work also on any Kubernetes, but you have to install Tekton and use the [buildah](https://github.com/tektoncd/catalog/tree/v1beta1/buildah) task. 
-
-### Needed CLI and log into OpenShift
-
-You need the following CLI's 
-
-- [kuberenetes](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
-- [oc](https://docs.openshift.com/container-platform/4.3/cli_reference/openshift_cli/getting-started-cli.html#installing-the-cli)
-- [tkn](https://openshift.github.io/pipelines-docs/docs/0.10.5/assembly_cli-reference.html)
-- [argocd](https://argoproj.github.io/argo-cd/cli_installation/)
-
-
-[Log into your OpenShift Cluster](https://docs.openshift.com/container-platform/4.3/cli_reference/openshift_cli/getting-started-cli.html#cli-logging-in_cli-developer-commands) should automatically log you into kubernetes and tekton.  
-
+#### 직접설치
 ```
-oc login --server=https://<OCP API Server>  --token=<Your Auth Token>
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 ```
-Your ID should use an ID with admin access since you will be installing a set of tools.  
+[argocd 직접설치](https://argoproj.github.io/argo-cd/getting_started/#1-install-argo-cd)
+#### 오퍼레이터
+[argocd operator 설치](https://argocd-operator.readthedocs.io/en/latest/install/start/)
 
-You can also log into your OpenShift web console.  
 
-
-### Install ArgoCD Operator into OpenShift 
-
-There are a few ways to install argocd into a Kubernetes Cluster.  We used the Argo CD Operator.  
-
-For this tutorial, I used [the Console Install](https://argocd-operator.readthedocs.io/en/latest/install/openshift/) using the Argo CD Operator on OpenShift.  
-
-### Install OpenShift Pipeline Operator 
-
-OpenShift delivers a preview of tekton through the OpenShift Pipeline Operator.  We used the OpenShift Pipeline Operator.  
-
-For this tutorial I follwed the instructions to install the [OpenShift Pipeline Operator](https://openshift.github.io/pipelines-docs/docs/0.10.5/assembly_installing-pipelines.html).
-
-### Install the Argo CD Tekton Task into the argocd namespace
-
-After tekton builds the application and pushed the container image into the Image Repository, tekton needs to trigger a new OpenShift Deployment.  There is a special task that allows Tekton to trigger a argocd sync.  You have to install the [Argo CD Tekton Task](https://github.com/tektoncd/catalog/tree/v1beta1/argocd)
-
-### Create OCP Project 
-You need to create an OpenShift project called node-web-project or you will need to change all namespaces in the YAML File to match your project 
-
+### tekton 설치
+tekton은 젠킨스와 비슷한 툴로 클라우드네이티브 환경에서 동작하는 ci/cd 툴이다.
+#### 직접설치
 ```
-oc new-project node-web-project
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
 ```
 
-### Allow Pipeline to access registry for build and deploy
-Your project will need the ability to publish and pull from the image repository.  
+#### 오퍼레이터
+[operator](https://operatorhub.io/operator/tektoncd-operator)
 
+### 배포를 위한 Tekton Task 설치
+#### 이미지 빌드
+쿠버네티스 클러스터에서 이미지 빌드를 위한 Task
 ```
-oc policy add-role-to-user registry-editor builder
-
-oc policy add-role-to-user registry-editor deployer
+kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/buildah/buildah.yaml
 ```
-
+[링크](https://github.com/tektoncd/catalog/tree/v1beta1/buildah)
+#### argocd cli로 배포
+argocd cli를 통해 쿠버네티스 클러스터에 배포하는 Task
+```
+kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/argocd/argocd.yaml
+```
+[링크](https://github.com/tektoncd/catalog/tree/v1beta1/argocd)
 ### Update argocd secret.
 
 ![alt argo-secret](images/argosecret.png)
