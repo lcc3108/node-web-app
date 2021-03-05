@@ -115,67 +115,104 @@ argocd cli를 통해 쿠버네티스 클러스터에 배포하는 Task
 kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/v1beta1/argocd/argocd.yaml
 ```
 [링크](https://github.com/tektoncd/catalog/tree/v1beta1/argocd)
-### Update argocd secret.
+### argocd 시크릿 업데이트
 
 ![alt argo-secret](images/argosecret.png)
 
-There is a file caled node-web-app-argocdsecret.template.  Create a copy of that file as yaml.
+node-web-app-argocdsecret.template 파일을 node-web-app-argocdsecret.yaml 파일로 복사합니다.
 
 ```
 cd pipeline
 cp node-web-app-argocdsecret.template  node-web-app-argocdsecret.yaml
 ```
-CAUTION !!!!! the .gitigonore file contains the name of this yaml file to avoid checkin of your credentials.  If you use another name, then you must make sure you DO NOT CHECKIN credentials.  
+*** node-web-app-argocdsecret.yaml는 인증정보를 담고 있기때문에 깃허브에 올라가선 안됩니다. ***
+*** pipeline/.gitignore 파일에 node-web-app-argocdsecret.yaml가 있으므로 파일이름을 함부로 변경하면 안됩니다. ***
 
 ![alt git-ignore](images/gitignore.png)
 
-In the newly created file, replace the value for ARGOCD_SERVER to your server.  Either enter your ARGOCD_AUTH_TOKEN or User and Password Base 64 encoded.  
+ARGOCD_SERVER 값을 실제 서버주소로 변경합니다.
+ARGOCD_AUTH_TOKEN 또는 (ARGOCD_USERNAME AND ARGOCD_PASSWORD)를 입력해줍니다.
+기본 username은 admin password는 아래 명령어 입력 후 나오는 argocd-server-69678b4f65-f5kq5 입니다.
+argocd-server- 이후에 문자열은 매번 다릅니다.
+```
+$ kubectl get pods -n argocd
+NAME                                 READY   STATUS    RESTARTS   AGE
+argocd-application-controller-0      1/1     Running   0          13m
+argocd-dex-server-567b48df49-cn6vx   1/1     Running   0          13m
+argocd-redis-6fb68d9df5-7lvvh        1/1     Running   0          13m
+argocd-repo-server-6dcbd9cb-r46tc    1/1     Running   0          13m
+argocd-server-69678b4f65-f5kq5       1/1     Running   0          13m
+```
 
 ![alt argo-secret](images/argosecret.png)
 
-### Examime Pipeline YAML
+### Pipeline YAML 설명
 
-Examine the Tekton Files.  A Quick summary of Tekton Resources can be read [here](https://openshift.github.io/pipelines-docs/docs/0.10.5/con_pipelines-concepts.html).  You already saw one of the YAML files to configure the secret. 
+텍톤 리소스에 대한 간략한 요약은 [링크](https://openshift.github.io/pipelines-docs/docs/0.10.5/con_pipelines-concepts.html)를 클릭해 읽을 수 있습니다.
+또한 제가 미약하지만 개인적으로 정리한 [글](https://lcc3108.github.io/articles/2021-01/tekton-exlain-and-exaple)도 있습니다.
+[node-web-app-pipeline-resources.yaml](pipeline/node-web-app-pipeline-resources.yaml): [Pipeline Resources](https://github.com/tektoncd/pipeline/blob/master/docs/resources.md)는 Pipeline에 대한 설정입니다. git repo와 container image 두가지 타입이 있으며 해당리소스를 참고하여 주로 git repo를 읽어 container image를 만들어냅니다.
 
-[node-web-app-pipeline-resources.yaml](pipeline/node-web-app-pipeline-resources.yaml): [Pipeline Resources](https://github.com/tektoncd/pipeline/blob/master/docs/resources.md) configured for the pipeline.  There are 2, the name of the git repository and the name of the Container Image using the Internal Red Hat Registry.  Note, the resources here allow us to do a Pipeline Run fomr the console or oc commandline.  It hard codes default values.  They will be overridden by Trigger Template when builds are done via a git push.  
-
-[node-web-app-pipeline.yaml](pipeline/node-web-app-pipeline.yaml): Our [Pipeline](https://github.com/tektoncd/pipeline/blob/master/docs/pipelines.md) for building, publishng, and deploying our Node App.  There are 2 [Tasks](https://github.com/tektoncd/pipeline/blob/master/docs/tasks.md).  We make use of some default tasks rather than creating our own.  A real life pipeline will execute tests, tag images, and so forth.  Tasks:
-
-- the build-and-publish-image uses the ClusterTask buildah (podman build system).  
-- argocd-sync-deployment uses the argocd Task we installed earlier
-
-[node-web-app-triggertemplate.yaml](pipeline/node-web-app-triggertemplate.yaml):  Now that the pipeline is setup, there are several resources created in this file.  They create the needed resources for triggering builds from an external source, in our case a Git webhook.  [You can learn more about Tekton Triggers here](https://github.com/tektoncd/triggers).  We have created the following.  
-
-- A TriggerTemplate is used to create a template of the same pipeline resources, but dynamically genertaed to not hard code image name or source.  It also creates a PipelineRun Template that will be created when a build is triggered. 
-
-- A TriggerBining that binds the incoming event data to the template (this will populte things like git repo name, revision,etc....)
-
-- An EventListener that will create a pod application bringing together a binding and a template.  
-
-- An OpenShift Route to expose the Event Listener.  Your will create a GIT Webhook that will callback this Route.  
-
-You can learn about [Tekton Resources](https://github.com/tektoncd/pipeline/tree/master/docs#learn-more) and [OpenShift Pipleines](https://openshift.github.io/pipelines-docs/docs/0.10.5/con_pipelines-concepts.html)
+[node-web-app-pipeline.yaml](pipeline/node-web-app-pipeline.yaml): [Pipeline](https://github.com/tektoncd/pipeline/blob/master/docs/pipelines.md)은 Node APP을 빌드, 배포합니다. 우리의 Pipeline에는 2개의 Task가 있는데 하나는 배포할 이미지를 만드며 다른하나는 ArgoCD cli를 사용해 쿠버네티스 클러스터에 배포합니다.
 
 
-### Create and configure ArgoCD App for Tekton Resources 
+[node-web-app-triggertemplate.yaml](pipeline/node-web-app-triggertemplate.yaml):  외부소스(여기선 github 웹훅)을 어떤 방식으로 처리할지 정의한 리소스입니다.
+- TriggerTemplate은 Pipeline Resource를 동적으로 생성합니다. 또한 PipelineRun 템플릿도 동적으로 생성합니다.
 
-We can use argocd to deploy the tekton build for the app.  IN a real project, having your pipeline in a separate repo might be better.  [You can create an argo cd app via the GUI or commandline](https://argoproj.github.io/argo-cd/getting_started/).   
+- TriggerBining은 이벤트 데이터(여기선 웹훅)를 TriggerTemplate에서 사용할 수 있도록 매핑시켜줍니다.
 
-The screenshot below shows the parameters I entered.  You need to use your own forked git repo.  
+- EventListener는 웹훅을 받는 팟을 생성하여 이벤트 데이터를 파싱 혹은 검증하여 TriggerBining과 TriggerTemplate에 전달해 줍니다.
+
+
+텍톤 리소스에 대한 예시는 [링크](https://github.com/tektoncd/pipeline/tree/master/docs#learn-more)를 참고하세요.
+
+
+### ArgoCD 앱 생성 및 Tekton 리소스 설정
+
+우리는 ArgoCD를 사용하여 Tekton을 배포 할 수 있습니다. 실제 프로젝트라면 pipline과 같은 리소스들은 분리된 레포지토리에 두는게 좋습니다. 
+
+``` bash
+kubectl apply -f - <<EOF
+apiVersion: v1
+items:
+- apiVersion: argoproj.io/v1alpha1
+  kind: Application
+  metadata:
+    name: node-web-app
+    namespace: argocd
+  spec:
+    destination:
+      namespace: node-web-project
+      server: https://kubernetes.default.svc
+    project: default
+    source:
+      path: pipeline
+      repoURL: https://github.com/lcc3108/node-web-app.git # 자신의 repoURL로 변경
+      targetRevision: HEAD
+    syncPolicy:
+      syncOptions:
+      - CreateNamespace=true
+kind: List
+EOF
+```
+
+위의 명령어를 실행시키면 아래와같이 ArgoCD APP이 만들어집니다.
 
 ![alt argo-pipeline](images/argo-node-web-pipeline.png) 
 
 - Project: default
-- cluster: (URL Of your OpenShift Cluster)
-- namespace should be the name of your OpenShift Project
+- cluster: URL
+- namespace: namespace
 - Targer Revision: Head
 - PATH: pipeline
-- AutoSync Enabled.  
+- repoURL: own repoURL
 
-Once you run sync, your pipeline should be deployed and your screen in argo should look like below.  
+sync 버튼을 클릭하게되면 pipeline들이 배포됩니다.
 
 ![alt argo-pipeline](images/argocd-tekton-pipeline.png)
 
+### OKD-console 설치(GUI 기능 제공)
+아래 글에서 --base-address의 값을 http://localhost:9000 로 주면 okd콘솔이 설치된다.
+[링크](https://lcc3108.github.io/articles/2021-01/operator-OLM-OKD-console#okd-console)
 ### Run a Build
 
 At this point you can run a build.  The Build Should succeed, but the deploy should fail.  If you configure the deployment first however, deloyment will fail to start because the image has not been published.  
