@@ -19,5 +19,5 @@ metadata:
 spec:
   params:
     - name: url
-      value: "harbor.lcc3108.ga/library/web-node-app:latest"
+      value: "lcc3108/web-node-app:latest"
   type: image

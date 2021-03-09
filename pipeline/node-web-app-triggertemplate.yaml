@@ -51,7 +51,7 @@ spec:
       - name: node-web-app-image
         resourceRef:
           name: node-web-app-image-$(uid)
-      serviceAccountName: pipeline
+      serviceAccountName: build-bot
 
 
 --- 

@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/instance: node-web-pipeline
     tekton.dev/pipeline: node-web-app-pipeline
 spec:
-  serviceAccountName: pipeline
+  serviceAccountName: build-bot
   pipelineRef:
     name: node-web-app-pipeline
   resources:
@@ -18,4 +18,3 @@ spec:
     - name: node-web-app-image
       resourceRef:
         name: node-web-app-image
-  timeout: 1h0m0s

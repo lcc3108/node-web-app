@@ -23,13 +23,14 @@ spec:
         type: image
   steps:
     - name: build-and-push
-      image: gcr.io/kaniko-project/executor:v0.16.0
+      image: gcr.io/kaniko-project/executor:v1.3.0-debug
       # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
       env:
         - name: "DOCKER_CONFIG"
           value: "/tekton/home/.docker/"
-      command:
-        - /kaniko/executor
+      script: |
+        #!/busybox/sh
+        ls $DOCKER_CONFIG
       args:
         - --dockerfile=$(params.pathToDockerFile)
         - --destination=$(resources.outputs.image.url)
