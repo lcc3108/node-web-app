@@ -211,7 +211,7 @@ sync 버튼을 클릭하게되면 pipeline들이 배포됩니다.
 ![alt argo-pipeline](images/argocd-tekton-pipeline.png)
 
 ### OKD-console 설치(GUI 기능 제공)
-아래 글에서 --base-address의 값을 http://localhost:9000 로 주면 okd콘솔이 설치된다.
+아래글을 따라서 하면 OKD 콘솔 설치가 가능합니다.
 [링크](https://lcc3108.github.io/articles/2021-01/operator-OLM-OKD-console#okd-console)
 ### Run a Build
 
